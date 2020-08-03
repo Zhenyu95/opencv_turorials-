@@ -1,0 +1,33 @@
+import cv2 as cv
+import numpy as np
+from matplotlib import pyplot as plt
+
+def adptiveThresh(img):
+    gray = cv.cvtColor(img,cv.COLOR_BGR2GRAY)
+    ret, th1 = cv.threshold(gray, 127, 255, cv.THRESH_BINARY)
+    # cv.adaptiveThreshold(	src, maxValue, adaptiveMethod, thresholdType, blockSize, C[, dst])
+    th2 = cv.adaptiveThreshold(gray, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 11, 2)
+    th3 = cv.adaptiveThreshold(gray, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 11, 2)
+    cv.imwrite('8Kgray.jpg', gray)
+    cv.imwrite('8KMean.jpg', th2)
+    cv.imwrite('8Kguassain.jpg',th3)
+
+def bigThresh(img):
+    wide = 256
+    height = 256
+    h, w = img.shape[:2]
+    gray = cv.cvtColor(img,cv.COLOR_BGR2GRAY)
+    for row in range(0, h, height):
+        for col in range(0, w, wide):
+            roi = gray[row:row+height, col:col+wide]
+            dst = cv.adaptiveThreshold(roi, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 127, 20)
+            th3 = cv.adaptiveThreshold(gray, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 127, 20)
+            gray[row:row+height, col:col+wide] = dst
+    cv.imwrite('thresholdedgray', gray)
+
+img = cv.imread('8Kleaves.jpg')
+bigThresh(img)
+
+
+cv.waitKey(0)
+cv.destroyAllWindows()
